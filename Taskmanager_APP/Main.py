@@ -1,3 +1,4 @@
+# Main
 import sys
 from PyQt6.QtWidgets import QApplication
 from models.database import Database
