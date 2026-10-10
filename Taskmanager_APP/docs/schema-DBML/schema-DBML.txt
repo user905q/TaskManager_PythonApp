@@ -1,0 +1,149 @@
+// ============================================
+// TaskManager — схема БД
+// Для визуализации на https://dbdiagram.io
+// ============================================
+
+// ---------- СПРАВОЧНИКИ ----------
+
+Table sections {
+  id            integer      [pk, increment]
+  name          varchar(100) [not null]
+  color         varchar(7)   [default: '#4a90e2']
+  status        varchar(20)  [default: 'active']  // active | archived
+  created_at    datetime     [default: `CURRENT_TIMESTAMP`]
+
+  Note: 'Тематические разделы задач. status — для архивирования'
+}
+
+Table tags {
+  id            integer      [pk, increment]
+  name          varchar(50)  [not null, unique]
+  color         varchar(7)   [default: '#cccccc']
+  created_at    datetime     [default: `CURRENT_TIMESTAMP`]
+
+  Note: 'Справочник тегов. Предустановленные: Высокий/Средний/Низкий приоритет, Личное, Работа, Учеба, Срочное'
+}
+
+Table board_columns {
+  id            integer      [pk, increment]
+  name          varchar(50)  [not null]
+  position      integer      [not null]
+  color         varchar(7)   [default: '#e0e0e0']
+  created_at    datetime     [default: `CURRENT_TIMESTAMP`]
+
+  Note: 'Колонки прогресса (Канбан-доска). По умолчанию 3, максимум 10'
+}
+
+// ---------- ОСНОВНЫЕ СУЩНОСТИ ----------
+
+Table tasks {
+  id            integer      [pk, increment]
+  title         varchar(255) [not null]
+  description   text
+  section_id    integer      [ref: > sections.id, null]
+  priority      varchar(10)  [default: 'medium']   // low | medium | high
+  status        varchar(20)  [default: 'active']   // active | archived
+  progress      integer      [default: 0]          // 0–100
+  deadline      datetime
+  color         varchar(7)   [default: '#ffffff']
+  completed_at  datetime
+  created_at    datetime     [default: `CURRENT_TIMESTAMP`]
+  updated_at    datetime     [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (status, deadline)
+    section_id
+    priority
+  }
+
+  Note: 'Центральная таблица задач. progress рассчитывается по позиции на доске'
+}
+
+Table attachments {
+  id            integer      [pk, increment]
+  task_id       integer      [not null, ref: > tasks.id]
+  file_name     varchar(255) [not null]
+  file_path     varchar(512) [not null]
+  created_at    datetime     [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    task_id
+  }
+
+  Note: 'Метаданные вложений (до 10 на задачу). Файлы в storage/'
+}
+
+Table time_logs {
+  id            integer      [pk, increment]
+  task_id       integer      [not null, ref: > tasks.id]
+  column_id     integer      [ref: > board_columns.id, null]
+  started_at    datetime     [not null]
+  ended_at      datetime
+  duration_sec  integer
+
+  indexes {
+    (task_id, started_at)
+    column_id
+  }
+
+  Note: 'История времени: в какой колонке задача была и сколько. column_id — для графика времени по колонкам'
+}
+
+// ---------- СВЯЗИ M:N ----------
+
+Table task_tags {
+  task_id       integer      [not null, ref: > tasks.id]
+  tag_id        integer      [not null, ref: > tags.id]
+  created_at    datetime     [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (task_id, tag_id) [pk]
+  }
+
+  Note: 'Связь M:N между задачами и тегами'
+}
+
+Table task_columns {
+  task_id       integer      [not null, ref: > tasks.id]
+  column_id     integer      [not null, ref: > board_columns.id]
+  moved_at      datetime     [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (task_id, column_id) [pk]
+  }
+
+  Note: 'Текущая позиция задачи на Канбан-доске'
+}
+
+// ---------- ВСПОМОГАТЕЛЬНЫЕ ----------
+
+Table notifications_log {
+  id            integer      [pk, increment]
+  task_id       integer      [not null, ref: > tasks.id]
+  sent_at       datetime     [default: `CURRENT_TIMESTAMP`]
+  channel       varchar(20)  [default: 'tray']
+
+  indexes {
+    task_id
+  }
+
+  Note: 'История отправленных уведомлений о дедлайнах'
+}
+
+Table settings {
+  key           varchar(50)  [pk]
+  value         text         [not null]
+  updated_at    datetime     [default: `CURRENT_TIMESTAMP`]
+
+  Note: 'Настройки пользователя: theme, backup_enabled и др.'
+}
+
+// ============================================
+// СВЯЗИ (для наглядности)
+// ============================================
+// sections    1 ──< tasks          (section_id)
+// tasks       1 ──< attachments    (task_id)
+// tasks       1 ──< time_logs      (task_id)
+// tasks       M ──< task_tags >── M tags
+// tasks       M ──< task_columns >── M board_columns
+// board_columns 1 ──< time_logs    (column_id)
