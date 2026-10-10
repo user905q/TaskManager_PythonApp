@@ -21,10 +21,14 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="models\database.py" />
+    <Compile Include="models\entities.py" />
+    <Compile Include="models\repositories.py" />
     <Compile Include="models\__init__.py" />
     <Compile Include="Main.py" />
     <Compile Include="viewmodels\__init__.py" />
     <Compile Include="views\dialogs\__init__.py" />
+    <Compile Include="views\main_window.py" />
     <Compile Include="views\__init__.py" />
   </ItemGroup>
   <ItemGroup>
@@ -38,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="init.sql" />
+    <Content Include="project-status.md" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
