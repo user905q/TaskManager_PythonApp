@@ -26,9 +26,27 @@
     <Compile Include="models\repositories.py" />
     <Compile Include="models\__init__.py" />
     <Compile Include="Main.py" />
+    <Compile Include="viewmodels\archive_vm.py" />
+    <Compile Include="viewmodels\board_vm.py" />
+    <Compile Include="viewmodels\feed_vm.py" />
+    <Compile Include="viewmodels\notification_vm.py" />
+    <Compile Include="viewmodels\section_vm.py" />
+    <Compile Include="viewmodels\settings_vm.py" />
+    <Compile Include="viewmodels\stats_vm.py" />
+    <Compile Include="viewmodels\task_vm.py" />
     <Compile Include="viewmodels\__init__.py" />
+    <Compile Include="views\archive_view.py" />
+    <Compile Include="views\board_view.py" />
+    <Compile Include="views\dialogs\column_dialog.py" />
+    <Compile Include="views\dialogs\delete_section_dialog.py" />
+    <Compile Include="views\dialogs\section_dialog.py" />
+    <Compile Include="views\dialogs\settings_dialog.py" />
+    <Compile Include="views\dialogs\task_dialog.py" />
+    <Compile Include="views\dialogs\task_view_dialog.py" />
     <Compile Include="views\dialogs\__init__.py" />
+    <Compile Include="views\feed_view.py" />
     <Compile Include="views\main_window.py" />
+    <Compile Include="views\stats_view.py" />
     <Compile Include="views\__init__.py" />
   </ItemGroup>
   <ItemGroup>

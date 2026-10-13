@@ -8,7 +8,6 @@ class Task:
     title: str = ""
     description: str = ""
     section_id: Optional[int] = None
-    priority: str = "medium"
     status: str = "active"
     progress: int = 0
     deadline: Optional[str] = None
@@ -40,6 +39,7 @@ class Tag:
     id: Optional[int] = None
     name: str = ""
     color: str = "#cccccc"
+    created_at: Optional[str] = None
 
 
 @dataclass
@@ -48,6 +48,7 @@ class BoardColumn:
     name: str = ""
     position: int = 0
     color: str = "#e0e0e0"
+    created_at: Optional[str] = None
 
 
 @dataclass
@@ -56,6 +57,7 @@ class Attachment:
     task_id: int = 0
     file_name: str = ""
     file_path: str = ""
+    created_at: Optional[str] = None 
 
 
 @dataclass

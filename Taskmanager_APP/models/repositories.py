@@ -15,9 +15,9 @@ class TaskRepository:
         task.validate()
         cur = self.db.cursor()
         cur.execute(
-            "INSERT INTO tasks (title, description, section_id, priority, status, progress, deadline, color) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (task.title, task.description, task.section_id, task.priority,
+            "INSERT INTO tasks (title, description, section_id, status, progress, deadline, color) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (task.title, task.description, task.section_id,
              task.status, task.progress, task.deadline, task.color)
         )
         self.db.commit()
@@ -54,9 +54,9 @@ class TaskRepository:
     def update(self, task: Task):
         cur = self.db.cursor()
         cur.execute(
-            "UPDATE tasks SET title=?, description=?, section_id=?, priority=?, "
+            "UPDATE tasks SET title=?, description=?, section_id=?, "
             "status=?, progress=?, deadline=?, color=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
-            (task.title, task.description, task.section_id, task.priority,
+            (task.title, task.description, task.section_id,
              task.status, task.progress, task.deadline, task.color, task.id)
         )
         self.db.commit()
@@ -104,21 +104,9 @@ class TaskRepositoryExtended(TaskRepository):
             where.append("LOWER(t.title) LIKE ?")
             params.append(f"%{criteria['title'].lower()}%")
 
-        if criteria.get("priority"):
-            where.append("t.priority = ?")
-            params.append(criteria["priority"])
-
         if criteria.get("section_id"):
             where.append("t.section_id = ?")
             params.append(criteria["section_id"])
-
-        if criteria.get("date_from"):
-            where.append("t.deadline >= ?")
-            params.append(criteria["date_from"])
-
-        if criteria.get("date_to"):
-            where.append("t.deadline <= ?")
-            params.append(criteria["date_to"])
 
         sql += " WHERE " + " AND ".join(where)
         rows = cur.execute(sql, params).fetchall()
@@ -142,8 +130,7 @@ class TaskRepositoryExtended(TaskRepository):
         soon = now + timedelta(minutes=minutes)
         rows = cur.execute(
             "SELECT * FROM tasks WHERE status!='archived' AND progress<100 "
-            "AND deadline IS NOT NULL "
-            "AND deadline BETWEEN ? AND ?",
+            "AND deadline IS NOT NULL AND deadline BETWEEN ? AND ?",
             (now.strftime("%Y-%m-%d %H:%M:%S"), soon.strftime("%Y-%m-%d %H:%M:%S"))
         ).fetchall()
         return [Task(**dict(r)) for r in rows]
@@ -156,10 +143,8 @@ class SectionRepository:
     def create(self, section: Section) -> int:
         section.validate()
         cur = self.db.cursor()
-        cur.execute(
-            "INSERT INTO sections (name, color) VALUES (?, ?)",
-            (section.name, section.color)
-        )
+        cur.execute("INSERT INTO sections (name, color) VALUES (?, ?)",
+                    (section.name, section.color))
         self.db.commit()
         return cur.lastrowid
 
@@ -167,6 +152,15 @@ class SectionRepository:
         cur = self.db.cursor()
         rows = cur.execute("SELECT * FROM sections WHERE status='active'").fetchall()
         return [Section(**dict(r)) for r in rows]
+
+    def rename(self, section_id: int, name: str, color: str = None):
+        cur = self.db.cursor()
+        if color:
+            cur.execute("UPDATE sections SET name=?, color=? WHERE id=?",
+                        (name, color, section_id))
+        else:
+            cur.execute("UPDATE sections SET name=? WHERE id=?", (name, section_id))
+        self.db.commit()
 
     def delete_with_tasks(self, section_id: int):
         cur = self.db.cursor()
@@ -178,6 +172,18 @@ class SectionRepository:
         cur = self.db.cursor()
         cur.execute("UPDATE tasks SET section_id=NULL WHERE section_id=?", (section_id,))
         cur.execute("DELETE FROM sections WHERE id=?", (section_id,))
+        self.db.commit()
+
+    def archive(self, section_id: int):
+        cur = self.db.cursor()
+        cur.execute("UPDATE tasks SET status='archived' WHERE section_id=?", (section_id,))
+        cur.execute("UPDATE sections SET status='archived' WHERE id=?", (section_id,))
+        self.db.commit()
+
+    def restore(self, section_id: int):
+        cur = self.db.cursor()
+        cur.execute("UPDATE sections SET status='active' WHERE id=?", (section_id,))
+        cur.execute("UPDATE tasks SET status='active' WHERE section_id=?", (section_id,))
         self.db.commit()
 
 
@@ -210,6 +216,12 @@ class TagRepository:
             WHERE tt.task_id = ?
         """, (task_id,)).fetchall()
         return [Tag(**dict(r)) for r in rows]
+
+    def unlink_all(self, task_id: int):
+        """Удалить все теги у задачи (перед повторной привязкой)."""
+        cur = self.db.cursor()
+        cur.execute("DELETE FROM task_tags WHERE task_id=?", (task_id,))
+        self.db.commit()
 
 
 class BoardColumnRepository:
@@ -250,10 +262,8 @@ class AttachmentRepository:
 
     def attach(self, task_id: int, file_name: str, file_path: str):
         cur = self.db.cursor()
-        cur.execute(
-            "INSERT INTO attachments (task_id, file_name, file_path) VALUES (?, ?, ?)",
-            (task_id, file_name, file_path)
-        )
+        cur.execute("INSERT INTO attachments (task_id, file_name, file_path) VALUES (?, ?, ?)",
+                    (task_id, file_name, file_path))
         self.db.commit()
 
     def find_by_task(self, task_id: int) -> list:
@@ -276,13 +286,6 @@ class TimeLogRepository:
     def __init__(self):
         self.db = Database()
 
-    def start(self, task_id: int) -> int:
-        cur = self.db.cursor()
-        cur.execute("INSERT INTO time_logs (task_id, started_at) VALUES (?, CURRENT_TIMESTAMP)",
-                    (task_id,))
-        self.db.commit()
-        return cur.lastrowid
-
     def get_total_by_section(self) -> list:
         cur = self.db.cursor()
         rows = cur.execute("""
@@ -294,26 +297,15 @@ class TimeLogRepository:
         """).fetchall()
         return [dict(r) for r in rows]
 
-    def get_time_by_column(self, period: str = "all") -> list:
-        """Сколько времени задачи провели в каждой колонке."""
+    def get_time_by_column(self) -> list:
         cur = self.db.cursor()
-        sql = """
-            SELECT 
-                bc.name AS column_name,
-                bc.color AS color,
-                bc.position AS position,
-                COALESCE(SUM(tl.duration_sec), 0) AS total_sec,
-                COUNT(DISTINCT tl.task_id) AS tasks_count
+        rows = cur.execute("""
+            SELECT bc.name AS column_name, bc.color AS color,
+                   COALESCE(SUM(tl.duration_sec), 0) AS total_sec
             FROM board_columns bc
             LEFT JOIN time_logs tl ON tl.column_id = bc.id
-        """
-        params = []
-        if period != "all":
-            days = {"day": 1, "week": 7, "month": 30}.get(period, 1)
-            sql += " WHERE tl.started_at >= date('now', ?)"
-            params.append(f"-{days} days")
-        sql += " GROUP BY bc.id ORDER BY bc.position"
-        rows = cur.execute(sql, params).fetchall()
+            GROUP BY bc.id ORDER BY bc.position
+        """).fetchall()
         return [dict(r) for r in rows]
 
     def get_done_count(self, period: str = "all") -> int:
@@ -323,8 +315,7 @@ class TimeLogRepository:
         days = {"day": 1, "week": 7, "month": 30}.get(period, 1)
         since = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
         return cur.execute(
-            "SELECT COUNT(*) FROM tasks WHERE progress=100 AND updated_at >= ?",
-            (since,)
+            "SELECT COUNT(*) FROM tasks WHERE progress=100 AND updated_at >= ?", (since,)
         ).fetchone()[0]
 
 

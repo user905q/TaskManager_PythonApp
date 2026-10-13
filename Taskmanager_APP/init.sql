@@ -1,5 +1,8 @@
 PRAGMA foreign_keys = ON;
 
+-- ============================================
+-- 1. РАЗДЕЛЫ
+-- ============================================
 CREATE TABLE IF NOT EXISTS sections (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -8,12 +11,14 @@ CREATE TABLE IF NOT EXISTS sections (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ============================================
+-- 2. ЗАДАЧИ
+-- ============================================
 CREATE TABLE IF NOT EXISTS tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     description TEXT,
     section_id INTEGER,
-    priority TEXT DEFAULT 'medium',
     status TEXT DEFAULT 'active',
     progress INTEGER DEFAULT 0,
     deadline DATETIME,
@@ -24,6 +29,9 @@ CREATE TABLE IF NOT EXISTS tasks (
     FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE SET NULL
 );
 
+-- ============================================
+-- 3. ТЕГИ
+-- ============================================
 CREATE TABLE IF NOT EXISTS tags (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
@@ -31,6 +39,9 @@ CREATE TABLE IF NOT EXISTS tags (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ============================================
+-- 4. СВЯЗЬ ЗАДАЧ И ТЕГОВ (M:N)
+-- ============================================
 CREATE TABLE IF NOT EXISTS task_tags (
     task_id INTEGER NOT NULL,
     tag_id INTEGER NOT NULL,
@@ -39,6 +50,9 @@ CREATE TABLE IF NOT EXISTS task_tags (
     FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 );
 
+-- ============================================
+-- 5. ВЛОЖЕНИЯ
+-- ============================================
 CREATE TABLE IF NOT EXISTS attachments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     task_id INTEGER NOT NULL,
@@ -48,6 +62,20 @@ CREATE TABLE IF NOT EXISTS attachments (
     FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
 );
 
+-- ============================================
+-- 6. КОЛОНКИ ПРОГРЕССА (КАНБАН)
+-- ============================================
+CREATE TABLE IF NOT EXISTS board_columns (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    position INTEGER NOT NULL,
+    color TEXT DEFAULT '#e0e0e0',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================
+-- 7. ИСТОРИЯ ВРЕМЕНИ
+-- ============================================
 CREATE TABLE IF NOT EXISTS time_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     task_id INTEGER NOT NULL,
@@ -59,14 +87,9 @@ CREATE TABLE IF NOT EXISTS time_logs (
     FOREIGN KEY (column_id) REFERENCES board_columns(id) ON DELETE SET NULL
 );
 
-CREATE TABLE IF NOT EXISTS board_columns (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    position INTEGER NOT NULL,
-    color TEXT DEFAULT '#e0e0e0',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
+-- ============================================
+-- 8. ПОЗИЦИЯ ЗАДАЧИ НА ДОСКЕ
+-- ============================================
 CREATE TABLE IF NOT EXISTS task_columns (
     task_id INTEGER NOT NULL,
     column_id INTEGER NOT NULL,
@@ -76,6 +99,9 @@ CREATE TABLE IF NOT EXISTS task_columns (
     FOREIGN KEY (column_id) REFERENCES board_columns(id) ON DELETE CASCADE
 );
 
+-- ============================================
+-- 9. ЛОГ УВЕДОМЛЕНИЙ
+-- ============================================
 CREATE TABLE IF NOT EXISTS notifications_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     task_id INTEGER NOT NULL,
@@ -84,12 +110,18 @@ CREATE TABLE IF NOT EXISTS notifications_log (
     FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
 );
 
+-- ============================================
+-- 10. НАСТРОЙКИ
+-- ============================================
 CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ============================================
+-- ПРЕДУСТАНОВЛЕННЫЕ ТЕГИ
+-- ============================================
 INSERT OR IGNORE INTO tags (name, color) VALUES
     ('Высокий приоритет', '#e74c3c'),
     ('Средний приоритет', '#f39c12'),
@@ -99,6 +131,9 @@ INSERT OR IGNORE INTO tags (name, color) VALUES
     ('Учеба', '#1abc9c'),
     ('Срочное', '#e67e22');
 
+-- ============================================
+-- ПРЕДУСТАНОВЛЕННЫЕ КОЛОНКИ
+-- ============================================
 INSERT OR IGNORE INTO board_columns (id, name, position, color) VALUES
     (1, 'Нужно выполнить', 1, '#e74c3c'),
     (2, 'В процессе', 2, '#f39c12'),
