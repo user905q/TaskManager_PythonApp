@@ -401,9 +401,9 @@
 В **BoardViewModel** реализованы:
 - Метод load_board() — загрузка колонок, разделов и задач.
 - Метод move_task_to_column(task_id, column_id):
-    1. Вызывает update_task_column у Model.
-    2. Инициирует пересчёт прогресса через calculate_progress.
-    3. Отправляет сигнал progressChanged для обновления View.
+    - Вызывает update_task_column у Model.
+    - Инициирует пересчёт прогресса через calculate_progress.
+    - Отправляет сигнал progressChanged для обновления View.
 
 В **TaskViewModel** реализованы:
 - Метод save_task(data) — создание задачи.
