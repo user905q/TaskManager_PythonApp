@@ -1,0 +1,86 @@
+/* --- Основной фон --- */
+QMainWindow, QDialog { background-color: #121212; }
+QWidget { color: #E0E0E0; }
+
+/* --- Вкладки --- */
+QTabWidget::pane { border: 1px solid #333333; background: #1E1E1E; }
+QTabBar::tab { background: #2C2C2C; color: #A0A0A0; padding: 8px 16px; border: 1px solid #333333; border-bottom: none; border-top-left-radius: 4px; border-top-right-radius: 4px; }
+QTabBar::tab:selected { background: #1E1E1E; color: #FFFFFF; font-weight: bold; border-bottom: 2px solid #F97316; }
+
+/* --- Тулбар и Меню --- */
+QToolBar { background: #1E1E1E; border-bottom: 1px solid #333333; }
+QToolBar QToolButton { color: #E0E0E0; padding: 4px; }
+QToolBar QToolButton:hover { background: #333333; border-radius: 4px; }
+QMenuBar { background: #121212; color: #E0E0E0; }
+QMenuBar::item:selected { background: #333333; }
+
+/* --- Контекстное меню (Темная тема) --- */
+QMenu { background-color: #1E1E1E; border: 1px solid #444444; border-radius: 4px; }
+QMenu::item { padding: 8px 24px; color: #FFD700; } /* Ярко-желтый текст, как ты просил */
+QMenu::item:selected { background-color: #333333; color: #FFD700; }
+
+/* --- Карточки --- */
+TaskCard { background-color: #1E1E1E; border: 1px solid #333333; border-radius: 6px; }
+TaskCard:hover { border: 1px solid #F97316; }
+
+SectionCard { background-color: #1E1E1E; border-left: 1px solid #333333; border-right: 1px solid #333333; border-bottom: 1px solid #333333; border-radius: 6px; }
+
+KanbanColumnWidget { background: #181818; border: 1px solid #333333; border-radius: 8px; }
+
+/* --- Текст --- */
+QLabel[class="task_subtext"] { color: #A0A0A0; font-size: 11px; border: none; }
+QLabel[class="task_deadline"] { color: #F87171; font-size: 11px; font-weight: bold; border: none; }
+QLabel[class="section_progress"] { color: #F97316; font-weight: bold; border: none; }
+
+/* --- Списки --- */
+QListWidget { background: transparent; border: none; color: #E0E0E0; }
+QListWidget::item { border-bottom: 1px solid #333333; padding: 5px; min-height: 25px; }
+QListWidget::item:selected { background-color: #4A2E1B; color: #FFFFFF; border: none; outline: none; }
+QListWidget#section_task_list { background: transparent; border: none; }
+
+/* --- Кнопки --- */
+QPushButton { background-color: #F97316; color: white; border-radius: 4px; padding: 6px 12px; border: none; font-weight: bold; }
+QPushButton:hover { background-color: #EA580C; }
+QPushButton:pressed { background-color: #C2410C; }
+
+/* Кнопка "+ задача" */
+QPushButton#btn_add { 
+    background-color: #2C2C2C; 
+    color: #F97316; 
+    border: 1px solid #F97316; 
+    border-radius: 4px; 
+    padding: 4px; 
+    font-weight: bold;
+}
+QPushButton#btn_add:hover { 
+    background-color: #F97316; 
+    color: white; 
+}
+QPushButton#btn_add:hover { background-color: #F97316; color: white; }
+QPushButton#btn_add:pressed { background-color: #C2410C; color: white; } /* Темно-оранжевый при нажатии */
+
+
+/* --- Прогресс-бар --- */
+QProgressBar { border: none; background: #333333; border-radius: 2px; }
+QProgressBar::chunk { background: #F97316; border-radius: 2px; }
+
+/* --- Поля ввода и выпадающие списки --- */
+QComboBox, QLineEdit, QTextEdit, QDateTimeEdit { 
+    background-color: #2C2C2C; color: #E0E0E0; border: 1px solid #444444; border-radius: 4px; padding: 4px; 
+}
+QComboBox QAbstractItemView { background-color: #2C2C2C; color: #E0E0E0; selection-background-color: #4A2E1B; }
+
+/* --- Статистика (убираем белый фон) --- */
+QFrame#chart_frame, QFrame#summary_frame {
+    background-color: transparent;
+}
+
+/* --- Полосы прокрутки --- */
+QScrollBar:vertical { background: #121212; width: 12px; }
+QScrollBar::handle:vertical { background: #444444; border-radius: 6px; margin: 2px; }
+QScrollBar::handle:vertical:hover { background: #F97316; }
+
+
+QFrame#summary_frame { background-color: #1E1E1E; border: 1px solid #333333; border-radius: 6px; }
+QLabel[class="summary_label"] { color: #E0E0E0; font-size: 14px; font-weight: bold; border: none; }
+QTextEdit#compare_text { background: #1E1E1E; color: #E0E0E0; border: 1px solid #333333; }

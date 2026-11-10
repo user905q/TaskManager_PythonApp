@@ -1,4 +1,5 @@
 import logging
+import sys
 from pathlib import Path
 from app.db.connection import get_connection, transactional
 from app.config import DEFAULT_COLUMNS, DEFAULT_TAGS, SYSTEM_SECTION_NAME
@@ -6,8 +7,21 @@ from app.config import DEFAULT_COLUMNS, DEFAULT_TAGS, SYSTEM_SECTION_NAME
 def init_db():
     conn = get_connection()
     try:
-        # Чтение схемы
-        schema_path = Path(__file__).parent / "schema.sql"
+        # --- ИСПРАВЛЕНИЕ ДЛЯ PYINSTALLER ---
+        # --- ИСПРАВЛЕНИЕ ДЛЯ PYINSTALLER ---
+        if getattr(sys, 'frozen', False):
+            # Если запущено из .exe, файлы лежат во временной папке
+            base_path = Path(sys._MEIPASS)
+        else:
+            # Если запущено из Python
+            base_path = Path(__file__).parent
+            
+        # Ищем schema.sql сначала в корне, потом в app/db
+        schema_path = base_path / "schema.sql"
+        if not schema_path.exists():
+            schema_path = base_path / "app" / "db" / "schema.sql"
+        # -----------------------------------
+        
         with open(schema_path, "r", encoding="utf-8") as f:
             conn.executescript(f.read())
         conn.commit()

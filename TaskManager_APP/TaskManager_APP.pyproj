@@ -26,9 +26,44 @@
     <Compile Include="app\db\migrations.py" />
     <Compile Include="app\db\__init__.py" />
     <Compile Include="app\logging_setup.py" />
+    <Compile Include="app\models\archive_repo.py" />
+    <Compile Include="app\models\attachment_repo.py" />
+    <Compile Include="app\models\column_repo.py" />
+    <Compile Include="app\models\entities.py" />
+    <Compile Include="app\models\notification_repo.py" />
+    <Compile Include="app\models\section_repo.py" />
+    <Compile Include="app\models\settings_repo.py" />
+    <Compile Include="app\models\stats_repo.py" />
+    <Compile Include="app\models\tag_repo.py" />
+    <Compile Include="app\models\task_repo.py" />
+    <Compile Include="app\models\timelog_repo.py" />
     <Compile Include="app\models\__init__.py" />
+    <Compile Include="app\viewmodels\archive_vm.py" />
+    <Compile Include="app\viewmodels\base.py" />
+    <Compile Include="app\viewmodels\board_vm.py" />
+    <Compile Include="app\viewmodels\feed_vm.py" />
+    <Compile Include="app\viewmodels\main_vm.py" />
+    <Compile Include="app\viewmodels\notification_vm.py" />
+    <Compile Include="app\viewmodels\section_vm.py" />
+    <Compile Include="app\viewmodels\settings_vm.py" />
+    <Compile Include="app\viewmodels\stats_vm.py" />
+    <Compile Include="app\viewmodels\task_vm.py" />
     <Compile Include="app\viewmodels\__init__.py" />
+    <Compile Include="app\views\archive_tab.py" />
+    <Compile Include="app\views\board_tab.py" />
+    <Compile Include="app\views\dialogs\about_dialog.py" />
+    <Compile Include="app\views\dialogs\columns_dialog.py" />
+    <Compile Include="app\views\dialogs\section_dialog.py" />
+    <Compile Include="app\views\dialogs\task_dialog.py" />
+    <Compile Include="app\views\dialogs\task_view_dialog.py" />
     <Compile Include="app\views\dialogs\__init__.py" />
+    <Compile Include="app\views\feed_tab.py" />
+    <Compile Include="app\views\main_window.py" />
+    <Compile Include="app\views\stats_tab.py" />
+    <Compile Include="app\views\widgets\kanban_board_zone.py" />
+    <Compile Include="app\views\widgets\sections_zone.py" />
+    <Compile Include="app\views\widgets\section_card.py" />
+    <Compile Include="app\views\widgets\task_card.py" />
     <Compile Include="app\views\widgets\__init__.py" />
     <Compile Include="app\views\__init__.py" />
     <Compile Include="app\__init__.py" />
@@ -37,6 +72,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app\db\schema.sql" />
+    <Content Include="app\resources\styles\dark.qss" />
+    <Content Include="app\resources\styles\light.qss" />
     <Content Include="project-status.md" />
     <Content Include="requirements.txt" />
   </ItemGroup>
